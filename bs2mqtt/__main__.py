@@ -1,20 +1,31 @@
 import argparse
-from pysecur3.MCP import MCPDiscover
+
+from .commands import ScanCommand, ServeCommand, InitCommand
+
+
+COMMANDS = {
+    "scan": ScanCommand(),
+    "init": InitCommand(),
+    "serve": ServeCommand(),
+}
 
 def main():
-    parser = argparse.ArgumentParser(description='Script to discover BiSecur Gateways on your local network')
-    parser.add_argument('-i', '--listen-ip', default='', help='IP to listen incoming packets on. Default: all available ips')
-    parser.add_argument('-b', '--broadcast-ip', default='255.255.255.255', help='Broadcast address. Default: 255.255.255.255')
-    args = parser.parse_args()
+    root = argparse.ArgumentParser(prog='PROG')
 
-    disc = MCPDiscover(args.listen_ip, args.broadcast_ip)
-    disc.run()
+    sub = root.add_subparsers(dest='command')
+    scan_parser = sub.add_parser('scan')
+    scan_parser.add_argument('-i', '--listen-ip', default='', help='IP to listen incoming packets on. Default: all available ips')
+    scan_parser.add_argument('-b', '--broadcast-ip', default='255.255.255.255', help='Broadcast address. Default: 255.255.255.255')
 
-    if len(disc.devices) > 0:
-        for ip in disc.devices:
-            print('Found device on address: %s, device attributes: %s ' % (ip, disc.devices[ip]))
-        else:
-            print('No devices found! Did you get the IP and broadcast correct?')
+    init_parser = sub.add_parser('init')
+    init_parser.add_argument('-c', '--config', default='', help='IP to listen incoming packets on. Default: all available ips')
+
+    serve_parser = sub.add_parser('serve')
+    serve_parser.add_argument('-c', '--config', default='', help='IP to listen incoming packets on. Default: all available ips')
+
+    args = root.parse_args()
+    COMMANDS[args.command].execute(args)
+
 
 
 
