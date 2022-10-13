@@ -1,0 +1,3 @@
+[submodule "vendors/pysecur3"]
+	path = vendors/pysecur3
+	url = git@github.com:skelsec/pysecur3.git
