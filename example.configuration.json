@@ -1,0 +1,12 @@
+{
+    "mqtt": {
+        "base_topic": "bs3mqtt",
+        "server": "mqtt://localhost",
+        "user": "",
+        "password": ""
+    },
+    "devices": {
+        "1": "door1",
+        "2": "gate1"
+    }
+}
