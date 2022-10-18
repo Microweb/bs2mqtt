@@ -1,0 +1,2 @@
+MQTT_PREFIX = 'bs2mqtt'
+TIMER_INVERVAL = 1 # sec

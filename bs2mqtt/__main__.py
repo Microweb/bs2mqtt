@@ -1,5 +1,7 @@
+import asyncio
 import argparse
 from email.policy import default
+import inspect
 import os
 import pathlib
 
@@ -31,10 +33,16 @@ def main():
 
     args = root.parse_args()
     try:
-        COMMANDS[args.command].execute(args)
+        command = COMMANDS[args.command]
     except KeyError:
-        print(f"Missing command")
-
+        print(f"Unknown command. (expected: {list(COMMANDS.keys())})")
+    else:
+        try:
+            result = command.execute(args)
+            if inspect.iscoroutine(result):
+                asyncio.run(result)
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == "__main__":

@@ -1,12 +1,22 @@
 {
     "mqtt": {
+        "client_id": "bs3mqtt",
         "base_topic": "bs3mqtt",
-        "server": "mqtt://localhost",
+        "host": "127.0.0.1",
+        "port": 1883,
+        "user": "",
+        "password": ""
+
+    },
+    "bisecur": {
+        "ip": "",
+        "mac": "",
+        "source": "",
         "user": "",
         "password": ""
     },
     "devices": {
-        "1": "door1",
-        "2": "gate1"
+        "door1": 1,
+        "gate": 2
     }
 }
