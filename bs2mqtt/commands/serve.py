@@ -59,30 +59,36 @@ class ServeCommand(ICommmand):
         async with contextlib.AsyncExitStack() as stack:
             tasks = []
             stack.push_async_callback(cancel_tasks, tasks)
+            while True:
+                try:
+                    mqtt = aiomqtt.Client(
+                        client_id = config.mqtt.client_id,
+                        hostname = config.mqtt.host,
+                        port = config.mqtt.port,
+                        username = config.mqtt.user,
+                        password = config.mqtt.password,
+                    )
 
-            mqtt = aiomqtt.Client(
-                client_id = config.mqtt.client_id,
-                hostname = config.mqtt.host,
-                port = config.mqtt.port,
-                username = config.mqtt.user,
-                password = config.mqtt.password,
-            )
-            await stack.enter_async_context(mqtt)
-            bisecur = BiSecurClient(config.bisecur)
-            await bisecur.login()
+                    await stack.enter_async_context(mqtt)
+                    bisecur = BiSecurClient(config.bisecur)
+                    await bisecur.login()
 
-            manager = mqtt.filtered_messages(f"{MQTT_PREFIX}/command")
-            messages = await stack.enter_async_context(manager)
-            task = asyncio.create_task(print_command(messages))
-            tasks.append(task)
+                    manager = mqtt.filtered_messages(f"{MQTT_PREFIX}/command")
+                    messages = await stack.enter_async_context(manager)
+                    task = asyncio.create_task(print_command(messages))
+                    tasks.append(task)
 
-            # messages = await stack.enter_async_context(client.unfiltered_messages())
-            # task = asyncio.create_task(print_messages(messages, "[unfiltered] {}"))
-            # tasks.append(task)
+                    # messages = await stack.enter_async_context(client.unfiltered_messages())
+                    # task = asyncio.create_task(print_messages(messages, "[unfiltered] {}"))
+                    # tasks.append(task)
 
-            task = asyncio.create_task(timer(Context(mqtt, bisecur), config.devices))
-            tasks.append(task)
+                    task = asyncio.create_task(timer(Context(mqtt, bisecur), config.devices))
+                    tasks.append(task)
 
-            await mqtt.subscribe(f"{MQTT_PREFIX}/#")
+                    await mqtt.subscribe(f"{MQTT_PREFIX}/#")
 
-            await asyncio.gather(*tasks)
+                    await asyncio.gather(*tasks)
+                except aiomqtt.error.MqttError as ex:
+                    print(ex)
+                    await asyncio.sleep(10)
+
